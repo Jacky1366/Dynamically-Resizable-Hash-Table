@@ -1,87 +1,163 @@
-# Dynamically Resizable Hash Table
+# Book Hash Table - Dynamically Resizable Hash Table Implementation
 
-A high-performance hash table implementation in Java featuring automatic resizing and efficient collision handling. This project demonstrates advanced data structures and algorithm optimization techniques.
+A specialized hash table implementation in Java designed for book inventory management, featuring extraction-based hashing on ISBN keys, linear probing collision resolution, and automatic resizing capabilities.
 
-## 🚀 Project Overview
+## Features
 
-Implemented a resizable hash table using extraction-based hashing on ISBN keys with linear probing collision resolution. The hash table automatically resizes when the load factor reaches 0.70 to maintain optimal performance.
+- **ISBN-optimized hashing** using last 3 digits for optimal distribution in book databases
+- **Linear probing** collision resolution with tombstone flag support
+- **Automatic resizing** triggered at 0.70 load factor for performance optimization
+- **Safe deletion support** with tombstone flags to maintain hash table integrity
+- **Comprehensive test suite** validating all operations across various collision scenarios
 
-## 💻 Technologies Used
+## Technical Implementation
 
-- **Language:** Java
-- **Key Concepts:** Data Structures, Algorithms, Performance Optimization
-- **Testing:** Custom test harness for validation
+### Core Components
+- **Hash Function**: Extraction-based algorithm using last 3 digits of ISBN for book-specific optimization
+- **Collision Resolution**: Linear probing with efficient probe sequence
+- **Load Factor Management**: Automatic resize when load exceeds 70%
+- **Memory Management**: Tombstone flags enable safe deletions without breaking probe sequences
+- **Prime Number Sizing**: Uses prime-sized tables for better hash distribution
 
-## ✨ Key Features
+### Performance Characteristics
+- **Insert**: O(1) average case, O(n) worst case
+- **Find**: O(1) average case, O(n) worst case  
+- **Remove**: O(1) average case, O(n) worst case
+- **Resize**: O(n) when triggered at 0.70 load factor
 
-- **Dynamic Resizing:** Automatic expansion when load factor reaches 0.70
-- **Efficient Collision Handling:** Linear probing with optimized probe sequences
-- **Deletion Support:** Tombstone flags for efficient deletion without disrupting probe sequences
-- **ISBN Key Optimization:** Extraction-based hashing specifically designed for ISBN identifiers
-- **Comprehensive Testing:** Custom test harness validating all operations
+## Usage
 
-## 🏗️ Technical Implementation
+```java
+// Create new book hash table
+BookHashTable bookTable = new BookHashTable();
 
-**Hash Function:**
-- Extraction-based hashing using last 3 digits of ISBN (`lastThreeDigits % tableSize`)
-- Optimized for ISBN key patterns with modulo operation for even distribution
+// Insert books with ISBN and title
+bookTable.insert("Effective Java", "9780134685991");
+bookTable.insert("Head First Design Patterns", "9780596009205");
 
-**Collision Resolution:**
-- Linear probing with careful handling of deleted entries
-- Tombstone flags maintain probe sequence integrity
+// Find books by ISBN
+String bookTitle = bookTable.find("9780134685991");
 
-**Dynamic Resizing:**
-- Monitors load factor continuously
-- Triggers resize at 0.70 load factor threshold
-- Rehashes all existing entries to new table size
+// Remove books by ISBN
+boolean removed = bookTable.remove("9780596009205");
 
-**Operations Supported:**
-- `insert(key, value)` - Add new key-value pair
-- `lookup(key)` - Retrieve value for given key
-- `remove(key)` - Delete key-value pair with tombstone marking
-- `resize()` - Manual or automatic table expansion
+// Display table state
+bookTable.printTable();
+```
 
-## 🧪 Testing & Validation
+## Project Structure
 
-Developed comprehensive test harness covering:
-- **Insert Operations:** Verify correct placement and collision handling
-- **Lookup Operations:** Confirm accurate retrieval and performance
-- **Remove Operations:** Test tombstone flag implementation
-- **Resize Operations:** Validate automatic resizing triggers and data integrity
-- **Performance Analysis:** Load factor monitoring and operation timing
+```
+src/
+├── BookHashTable.java      # Main hash table implementation
+└── BookHashTableTest.java  # Comprehensive test suite
+```
 
-## 📊 Performance Characteristics
+## Running the Code
 
-- **Average Case:** O(1) for insert, lookup, and delete operations
-- **Load Factor Management:** Maintains performance through automatic resizing
-- **Space Efficiency:** Optimized memory usage with tombstone recycling
+### Prerequisites
+- Java 8 or higher
+- No external dependencies required
 
-## 🎯 What I Learned
+### Compilation
+```bash
+javac BookHashTable.java BookHashTableTest.java
+```
 
-**Technical Skills:**
-- Advanced hash table implementation techniques
-- Load factor optimization and performance tuning
-- Collision resolution strategy design
-- Memory management in data structure implementation
+### Running Tests
+```bash
+java BookHashTableTest
+```
 
-**Problem-Solving:**
-- Algorithm optimization for specific use cases (ISBN keys)
-- Testing methodology for complex data structures
-- Performance analysis and benchmarking
+## Algorithm Details
 
-## 🚧 Future Enhancements
+### Hash Function
+The extraction-based hash function optimizes for ISBN keys by:
+1. Extracting the last 3 digits from ISBN strings
+2. Converting to integer for mathematical operations
+3. Applying modulo operation for table size fitting
 
-- Implementation of alternative collision resolution methods (quadratic probing, double hashing)
-- Support for generic key types beyond ISBN
-- Performance comparison with Java's built-in HashMap
-- Thread-safe concurrent implementation
+```java
+private int hash(String isbn, int tableSize) {
+    int lastThreeDigits = Integer.parseInt(isbn.substring(isbn.length() - 3));
+    return lastThreeDigits % tableSize;
+}
+```
 
-## 📚 Academic Context
+### Collision Resolution
+Linear probing implementation:
+- Sequential search from initial hash position
+- Tombstone flags mark deleted entries
+- Maintains probe sequence integrity during deletions
 
-This project was developed as part of data structures coursework, focusing on:
-- Understanding hash table internals
-- Implementing efficient collision resolution
-- Performance optimization techniques
-- Comprehensive testing methodologies
+### Resizing Strategy
+- Monitors load factor after each insertion
+- Triggers resize at 0.70 threshold
+- Uses prime number sizing for optimal distribution
+- Rehashes all existing entries to new table
 
----
+## Testing
+
+The test suite validates:
+- ✅ Basic insert/find/remove operations
+- ✅ Collision handling with same-hash ISBN keys  
+- ✅ Automatic resize behavior at load factor threshold
+- ✅ Insertion order independence
+- ✅ Tombstone flag functionality
+- ✅ Prime number table sizing
+
+### Test Scenarios Covered
+1. **Different insertion orders** - Verifies consistent behavior regardless of input sequence
+2. **Collision handling** - Tests linear probing with ISBNs that hash to same index
+3. **Resizing behavior** - Validates automatic expansion when load factor exceeds 0.70
+4. **Find operations** - Confirms accurate retrieval after collisions and resizing
+5. **Remove operations** - Tests tombstone flag implementation
+6. **Post-removal insertion** - Verifies tombstone reuse for new entries
+
+## Technical Specifications
+
+- **Language**: Java
+- **Key Type**: ISBN strings (optimized for 10 and 13 digit formats)
+- **Value Type**: Book titles (String)
+- **Initial Capacity**: 11 (prime number)
+- **Load Factor Threshold**: 0.70
+- **Resize Strategy**: Double capacity, then find next prime
+- **Collision Resolution**: Linear probing with wraparound
+
+## Key Methods
+
+### `void insert(String name, String isbn)`
+Inserts a book into the hash table. Handles duplicates by displaying a warning message.
+
+### `String find(String isbn)`
+Retrieves the book title associated with the given ISBN. Returns null if not found.
+
+### `boolean remove(String isbn)`
+Removes a book by ISBN using tombstone marking. Returns true if book was found and removed.
+
+### `void printTable()`
+Displays the current state of the hash table for debugging and verification.
+
+## Development Notes
+
+This implementation prioritizes:
+- **ISBN-specific optimization**: Hash function designed for book database patterns
+- **Educational clarity**: Clear code structure demonstrating hash table concepts
+- **Reliability**: Comprehensive testing ensures correctness across edge cases
+- **Performance**: Maintains optimal load factor through automatic resizing
+
+## Real-World Applications
+
+This hash table design is ideal for:
+- Library management systems
+- Bookstore inventory tracking
+- Academic book databases
+- ISBN-based catalog systems
+
+## Author
+
+Jacky Huang - Information Technology Student, Kwantlen Polytechnic University
+
+## Academic Context
+
+Developed as part of Object-Oriented Programming & Data Structures coursework, demonstrating advanced understanding of hash table algorithms and performance optimization techniques.
